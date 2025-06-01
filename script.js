@@ -55,19 +55,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     const tabButtons = document.querySelectorAll('.tab-button');
     const tabPanels = document.querySelectorAll('.tab-panel');
 
-    // --- ここから再追加: 初期セッション確認ログ ---
-    // console.log('[getSession] Attempting to get initial session...');
     const { data: { session: initialSession }, error: initialSessionError } = await supabaseClient.auth.getSession();
-    // console.log('[getSession] Initial session:', initialSession);
-    // console.log('[getSession] Initial session error:', initialSessionError);
-    // --- ここまで再追加 ---
 
-    // --- ここから変更: 初期表示を制御 --- 
     // 認証状態が確定するまで、関連コンテナを非表示にする
     if (authContainer) authContainer.style.display = 'none';
     if (appContainer) appContainer.style.display = 'none'; // HTMLでデフォルトnoneだが念のため
     if (userAuthIconContainer) userAuthIconContainer.style.display = 'none';
-    // --- ここまで変更 ---
+
 
     const defaultSubjects = [
         { name: "国語", icon: "fas fa-book" },
@@ -105,49 +99,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         { text: "2時間30分", value: 150 },
         { text: "3時間", value: 180 },
     ];
-
-    function generateRandomPastTimestamp(daysAgo) {
-        const now = new Date();
-        const pastDate = new Date(now);
-        pastDate.setDate(now.getDate() - daysAgo);
-        // 時間は0時から23時までランダム
-        pastDate.setHours(Math.floor(Math.random() * 24));
-        pastDate.setMinutes(Math.floor(Math.random() * 60));
-        pastDate.setSeconds(Math.floor(Math.random() * 60));
-        return pastDate.toISOString();
-    }
-
-    function generateSampleLogs() {
-        const logs = [];
-        let currentId = Date.now();
-        const numberOfDays = 365;
-
-        for (let i = 0; i < numberOfDays; i++) {
-            const recordsPerDay = Math.floor(Math.random() * 4); // 0から3件の記録/日
-            for (let j = 0; j < recordsPerDay; j++) {
-                const randomSubjectIndex = Math.floor(Math.random() * defaultSubjects.length);
-                const subject = defaultSubjects[randomSubjectIndex].name;
-
-                // 15分から180分まで、15分刻みでランダム
-                const randomDurationStep = Math.floor(Math.random() * (180/15 - 15/15 + 1)) + (15/15);
-                const durationMinutes = randomDurationStep * 15;
-
-                logs.push({
-                    id: currentId--,
-                    subject: subject,
-                    loggedAt: generateRandomPastTimestamp(i),
-                    duration: durationMinutes * 60 // 秒単位で保存
-                });
-            }
-        }
-        // ログを時系列順（古いものが先）にソートする（任意だが、ID生成順とは逆なので表示に影響するかも）
-        // logs.sort((a, b) => new Date(a.loggedAt) - new Date(b.loggedAt)); 
-        // IDを振り直す場合
-        // logs.forEach((log, index) => log.id = Date.now() - (logs.length - index) * 1000);
-        return logs;
-    }
-
-    const sampleLogs = generateSampleLogs();
 
     // 認証状態変更の監視
     supabaseClient.auth.onAuthStateChange((event, session) => {
@@ -203,7 +154,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (error) {
             signUpError.textContent = 'エラー: ' + error.message;
         } else {
-            // alert('ユーザー登録が完了しました。ログインしてください。');
             alert('認証メール(件名:Confirm your signup)を送信しました。メール内のリンクをクリックしてください。メールが見つからない場合は、迷惑フォルダを確認してください。');
             showSignInButton.click();
             signInEmailInput.value = email;
@@ -495,17 +445,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     });
 
-    function addSampleDataIfNeeded() {
-        const logs = getLogsFromStorage();
-        if (logs.length === 0) {
-            localStorage.setItem('studyLogs', JSON.stringify(sampleLogs));
-        }
-    }
-
     initializeSubjectIcons(); // 科目アイコンを初期化
     // initializeDurationSlider(); // 勉強時間スライダーを初期化 -> ピッカー初期化に変更
     initializeDurationPicker(); // ドラム式ピッカーを初期化
-    addSampleDataIfNeeded(); 
     loadLogsAndRenderList(); 
     // 初期表示で入力タブがアクティブなので、もしグラフを初めから描画したい場合はここでupdateChart()を呼ぶ
     // ただし、chartTabがアクティブでないと描画されないように updateChart 側で制御する
@@ -546,7 +488,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (error) {
             alert('記録の保存に失敗しました: ' + error.message);
         } else if (data && data.length > 0) {
-            addLogToList(data[0]);
+            addLogToList(data[0], true);
             if (document.getElementById('chartTab').classList.contains('active')) {
                 updateChart();
             }
@@ -572,15 +514,17 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (error) {
             // alert('記録の読み込みに失敗しました: ' + error.message);
         } else {
-            logs.forEach(log => addLogToList(log));
+            logs.forEach(log => addLogToList(log, false));
         }
     }
 
-    function getLogsFromStorage() { // この関数はSupabase移行後は不要になる
-        return []; // Supabaseを使うので空を返す
-    }
+    function addLogToList(log, prepend = false) { // DBからのデータ形式に合わせて調整、prepend パラメータ追加
+        // 既に同じIDの要素が存在する場合は追加しない
+        const existingItem = logList.querySelector(`.log-card[data-log-id="${log.id}"]`);
+        if (existingItem) {
+            return; // 既に存在する場合は何もしない
+        }
 
-    function addLogToList(log) { // DBからのデータ形式に合わせて調整
         const li = document.createElement('li');
         li.classList.add('log-card');
         li.dataset.logId = log.id; // DBのidを使用
@@ -620,7 +564,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             await deleteLogFromSupabase(log.id); // Supabaseからの削除に変更
         };
 
-        if (logList.firstChild) {
+        if (prepend && logList.firstChild) {
             logList.insertBefore(li, logList.firstChild);
         } else {
             logList.appendChild(li);
@@ -643,13 +587,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
     
-    // 既存の deleteLog 関数は deleteLogFromSupabase に置き換わるのでコメントアウトまたは削除
-    /*
-    function deleteLog(logId) {
-        // localStorageからの削除ロジック
-    }
-    */
-
     function aggregatePieChartData(logs) {
         const aggregatedData = {};
         logs.forEach(log => {
