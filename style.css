@@ -1,0 +1,645 @@
+/* iPhone 13 (390px幅) 向けスタイル */
+:root {
+    --primary-color: #4a90e2;
+    --primary-color-light: #e0efff;
+    --secondary-color: #50e3c2;
+    --background-color: #f0f2f5; /* 少し明るい背景に変更 */
+    --text-color: #2c3e50; /* 少し濃いめのテキストカラー */
+    --light-text-color: #566573;
+    --border-color: #d5dbdb; /* ボーダーカラー調整 */
+    --card-background: #ffffff;
+    --shadow-color: rgba(0, 0, 0, 0.06);
+    --danger-color: #e74c3c;
+    --danger-hover-color: #c0392b;
+}
+
+body {
+    font-family: 'Noto Sans JP', sans-serif;
+    margin: 0;
+    background-color: var(--background-color);
+    color: var(--text-color);
+    line-height: 1.5; /* 行間を少し詰める */
+    padding: 0; /* bodyのpaddingは不要に */
+    min-height: 100vh;
+    box-sizing: border-box;
+    -webkit-font-smoothing: antialiased; /* iOSでのフォントレンダリング改善 */
+    -moz-osx-font-smoothing: grayscale;
+}
+
+.container {
+    background-color: var(--card-background);
+    padding: 15px; /* 全体的なパディングを調整 */
+    width: 100%;
+    max-width: 100%; /* iPhoneでは常に画面幅いっぱいに */
+    min-height: 100vh; /* 画面の高さいっぱいに */
+    box-sizing: border-box;
+    border-radius: 0; /* iPhoneでは角丸不要 */
+    box-shadow: none; /* iPhoneでは影不要 */
+}
+
+h1 {
+    color: var(--primary-color);
+    text-align: center;
+    margin-top: 20px; /* 上マージン調整 */
+    margin-bottom: 20px;
+    font-size: 1.7em; /* フォントサイズ調整 */
+    font-weight: 500;
+}
+
+h2 {
+    color: var(--primary-color);
+    margin-top: 25px;
+    margin-bottom: 15px;
+    border-bottom: 1px solid var(--primary-color); /* ボーダーを細く */
+    padding-bottom: 8px;
+    font-size: 1.3em;
+    font-weight: 500;
+}
+
+/* タブナビゲーションのスタイル */
+.tabs {
+    list-style-type: none;
+    padding: 0;
+    margin: 0 0 15px 0;
+    display: flex;
+    border-bottom: 1px solid var(--border-color);
+    background-color: var(--card-background); /* タブ背景色 */
+    position: sticky; /* スクロールしても追従 */
+    top: 0;
+    z-index: 10;
+}
+
+.tab-button {
+    padding: 12px 5px; /* パディング調整 */
+    cursor: pointer;
+    background-color: transparent; /* 背景を透明に */
+    border: none; /* ボーダーなし */
+    border-bottom: 3px solid transparent; /* アクティブ時の下線用 */
+    font-weight: 500;
+    color: var(--light-text-color);
+    transition: color 0.3s ease, border-bottom-color 0.3s ease;
+    flex-grow: 1;
+    text-align: center;
+    font-size: 0.9em; /* フォントサイズ調整 */
+}
+
+.tab-button i {
+    margin-right: 4px;
+    font-size: 1.1em; /* アイコンサイズ調整 */
+}
+
+.tab-button:hover {
+    color: var(--primary-color);
+}
+
+.tab-button.active {
+    color: var(--primary-color);
+    border-bottom-color: var(--primary-color);
+    font-weight: bold;
+}
+
+/* タブパネルのスタイル */
+.tab-panel {
+    display: none;
+    padding: 15px 5px; /* パネルのパディング調整 */
+    border: none; /* ボーダーなし */
+    background-color: var(--background-color); /* パネル背景はbodyと同じ */
+}
+
+.tab-panel.active {
+    display: block;
+}
+
+.input-area {
+    background-color: var(--card-background);
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    border: 1px solid var(--border-color);
+}
+
+.input-area label {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: 500;
+    color: var(--light-text-color);
+    font-size: 0.95em;
+}
+
+.input-area select {
+    width: 100%; /* 幅を100%に */
+    padding: 12px; /* パディング調整 */
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    margin-bottom: 15px;
+    font-size: 1em;
+    background-color: var(--card-background);
+    -webkit-appearance: none; /* iOSでのデフォルトスタイル解除 */
+    -moz-appearance: none;
+    appearance: none;
+    background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23007AFF%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E');
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    background-size: .65em auto;
+    padding-right: 30px; /* 矢印スペース */
+}
+
+/* 勉強時間スライダーのスタイル */
+#durationSlider {
+    width: 100%;
+    margin-top: 5px; /* ラベルとの間隔 */
+    margin-bottom: 20px; /* ボタンとの間隔 */
+    -webkit-appearance: none; /* スタイリングのためデフォルト外観を解除 */
+    appearance: none;
+    height: 8px; /* スライダーのトラックの高さ */
+    background: var(--border-color); /* トラックの背景色 */
+    border-radius: 5px;
+    outline: none;
+}
+
+#durationSlider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 20px; /* スライダーのつまみの幅 */
+    height: 20px; /* スライダーのつまみの高さ */
+    background: var(--primary-color); /* つまみの背景色 */
+    border-radius: 50%;
+    cursor: pointer;
+    border: 2px solid var(--card-background); /* つまみの境界線 */
+    box-shadow: 0 0 2px rgba(0,0,0,0.3);
+}
+
+#durationSlider::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
+    background: var(--primary-color);
+    border-radius: 50%;
+    cursor: pointer;
+    border: 2px solid var(--card-background);
+    box-shadow: 0 0 2px rgba(0,0,0,0.3);
+}
+
+#selectedDurationDisplay {
+    font-weight: bold;
+    color: var(--primary-color);
+    margin-left: 5px;
+}
+
+.input-area select:focus,
+.input-area input[type="text"]:focus,
+.input-area input[type="number"]:focus {
+    border-color: var(--primary-color);
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.2); /* box-shadow調整 */
+}
+
+.input-area button {
+    padding: 14px 20px; /* パディング調整 */
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 8px; /* 角丸調整 */
+    cursor: pointer;
+    font-size: 1.05em; /* フォントサイズ調整 */
+    font-weight: 500;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    display: block;
+    width: 100%;
+    margin-top: 15px;
+}
+
+.input-area button:hover {
+    background-color: #357abd;
+    transform: translateY(-1px); /* ホバーエフェクト調整 */
+}
+
+.input-area button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.subject-icons {
+    display: grid; /* Gridレイアウトに変更 */
+    grid-template-columns: repeat(auto-fill, minmax(75px, 1fr)); /* 画面幅に応じて自動調整、最小75px */
+    gap: 8px;
+    margin-bottom: 20px;
+}
+
+.subject-icon {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center; /* 中央揃え */
+    padding: 10px 5px; /* パディング調整 */
+    border: 1.5px solid var(--border-color); /* ボーダー調整 */
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.2s, border-color 0.2s;
+    text-align: center;
+    min-height: 70px; /* 最小高さ */
+}
+
+.subject-icon i {
+    font-size: 22px;
+    margin-bottom: 5px;
+    color: var(--primary-color); /* アイコンカラー */
+}
+
+.subject-icon span {
+    font-size: 11px;
+    color: var(--text-color);
+    line-height: 1.2; /* 行間調整 */
+}
+
+.subject-icon.selected {
+    background-color: var(--primary-color-light);
+    border-color: var(--primary-color);
+}
+.subject-icon.selected i,
+.subject-icon.selected span {
+    color: var(--primary-color); /* 選択時の文字色 */
+    font-weight: bold;
+}
+
+.subject-icon:hover {
+    border-color: var(--secondary-color);
+}
+
+#logList {
+    list-style-type: none;
+    padding: 0;
+    display: grid;
+    grid-template-columns: 1fr; /* 常に1列表示 */
+    gap: 12px; /* カード間の隙間 */
+}
+
+.log-card {
+    background-color: var(--card-background);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 12px;
+    box-shadow: 0 2px 4px var(--shadow-color);
+    position: relative;
+    display: flex;
+    flex-direction: column;
+}
+
+.log-card-header {
+    display: flex;
+    justify-content: flex-start; /* 左寄せに変更 */
+    align-items: baseline;
+    margin-bottom: 8px;
+    padding-bottom: 6px;
+    border-bottom: 1px dashed var(--border-color);
+}
+
+.log-date {
+    font-size: 0.95em; /* フォントサイズ調整 */
+    font-weight: 500;
+    color: var(--primary-color);
+    margin-right: 8px; /* 日付と時刻の間のマージン */
+}
+
+.log-time {
+    font-size: 0.85em;
+    color: var(--light-text-color);
+}
+
+.log-card-body {
+    display: flex;
+    align-items: center;
+    justify-content: space-between; /* 科目と時間を両端に */
+    flex-grow: 1;
+    margin-bottom: 5px; /* 下マージン調整 */
+    padding: 5px 0; /* 上下パディング追加 */
+}
+
+.log-subject {
+    font-size: 1.1em; /* フォントサイズ調整 */
+    font-weight: bold;
+    border: 1.5px solid;
+    padding: 4px 10px;
+    border-radius: 6px;
+    display: inline-block;
+    text-align: center;
+    margin-right: 10px; /* 右マージン */
+}
+
+.log-duration {
+    font-size: 1em; /* フォントサイズ調整 */
+    color: var(--text-color); /* 通常のテキストカラーに */
+    font-weight: 500;
+}
+
+.delete-log-button {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background-color: transparent;
+    border: none;
+    color: var(--danger-color);
+    font-size: 1.6em; /* サイズ調整 */
+    cursor: pointer;
+    padding: 5px;
+    line-height: 1;
+}
+
+.delete-log-button:hover {
+    color: var(--danger-hover-color);
+}
+
+
+.chart-container {
+    border-radius: 8px;
+    margin-bottom: 20px; /* 下マージン調整 */
+    background-color: var(--card-background); /* 背景色追加 */
+    padding: 10px; /* パディング追加 */
+    box-shadow: 0 2px 4px var(--shadow-color);
+}
+
+.chart-container canvas {
+    max-height: 280px; /* グラフの最大高さを調整 */
+}
+.stacked-bar-chart-container {
+    height: 280px !important; /* 高さを固定 */
+}
+.pie-chart-container {
+    max-width: 100%; /* 幅を100%に */
+    height: 300px !important; /* 高さを固定 */
+    margin: 0 auto 20px auto; /* 中央揃えと下マージン */
+}
+h3 { /* グラフのタイトル */
+    font-size: 1.1em;
+    text-align: center;
+    margin-bottom: 10px;
+    color: var(--text-color);
+}
+
+
+/* PC向けスタイル (769px以上) */
+@media (min-width: 769px) {
+    body {
+        padding: 20px; /* PCでは元のpaddingを適用 */
+    }
+    .container {
+        padding: 30px 40px;
+        border-radius: 12px;
+        box-shadow: 0 8px 25px var(--shadow-color);
+        max-width: 800px; /* コンテンツ幅を制限 */
+        margin: 20px auto; /* 上下マージンと中央揃え */
+    }
+
+    h1 {
+        font-size: 2em; /* PCでは大きめに */
+        margin-bottom: 30px;
+    }
+
+    h2 {
+        font-size: 1.5em; /* PCでは大きめに */
+        margin-top: 40px;
+        margin-bottom: 20px;
+        border-bottom-width: 2px;
+        padding-bottom: 10px;
+    }
+
+    .tabs {
+        margin: 0 0 20px 0;
+        position: static; /* PCでは追従しない */
+        border-bottom-width: 2px;
+    }
+
+    .tab-button {
+        padding: 10px 20px;
+        font-size: 1em;
+        border-bottom-width: 2px; /* PCでの下線太さ */
+    }
+    .tab-button i {
+        margin-right: 8px;
+        font-size: 1em;
+    }
+
+
+    .tab-panel {
+        padding: 20px;
+        border: 1px solid var(--border-color);
+        border-top: none;
+        border-radius: 0 0 8px 8px;
+        background-color: var(--card-background); /* PCではパネルに背景色 */
+    }
+
+
+    .input-area {
+        padding: 20px;
+        margin-bottom: 30px;
+    }
+
+    .input-area label {
+        font-size: 1em;
+        margin-bottom: 8px;
+    }
+
+    .input-area select {
+        width: calc(100% - 22px); /* paddingとborderを考慮 */
+        padding: 12px;
+        margin-bottom: 15px;
+        font-size: 1em;
+        padding-right: 12px; /* PCでは矢印スペース不要なら元に戻す */
+        /* background-image: none; */ /* PCではカスタム矢印不要なら */
+    }
+
+
+    .input-area button {
+        padding: 12px 25px;
+        font-size: 1em;
+        max-width: 200px;
+        margin: 10px auto 0;
+    }
+
+    .subject-icons {
+        grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+        gap: 10px;
+    }
+
+    .subject-icon {
+        min-width: 70px;
+        padding: 10px;
+        min-height: auto;
+    }
+    .subject-icon i {
+        font-size: 24px;
+    }
+    .subject-icon span {
+        font-size: 12px;
+    }
+
+    #logList {
+        grid-template-columns: repeat(3, 1fr); /* 1行に3つのカードを配置 */
+        gap: 20px;
+    }
+
+    .log-card {
+        padding: 15px;
+        min-height: 120px;
+    }
+
+    .log-card-header {
+        margin-bottom: 10px;
+        padding-bottom: 8px;
+        flex-direction: row; /* PCでは横並びに戻す */
+    }
+    .log-date {
+        font-size: 1.1em;
+        margin-right: 10px;
+    }
+    .log-time {
+        font-size: 0.9em;
+    }
+
+    .log-card-body {
+        flex-direction: row; /* 横並びに戻す */
+        justify-content: center;
+        margin-bottom: 10px;
+        padding: 0;
+    }
+    .log-subject {
+        font-size: 1.4em;
+        padding: 5px 15px;
+        margin-right: 15px;
+    }
+    .log-duration {
+        font-size: 1.2em;
+        color: var(--light-text-color); /* PCでは元の色 */
+    }
+
+    .delete-log-button {
+        font-size: 1.5em;
+        top: 8px;
+        right: 8px;
+    }
+
+    .chart-container {
+        padding: 0; /* PCではchart-containerのpaddingなし */
+        box-shadow: none; /* PCではchart-containerの影なし */
+        background-color: transparent;
+    }
+    .stacked-bar-chart-container {
+        height: 300px !important;
+    }
+    .pie-chart-container {
+        max-width: 400px;
+        height: 400px !important;
+        margin: 20px auto;
+    }
+    h3 { /* グラフのタイトル */
+        font-size: 1.2em;
+        text-align: left; /* PCでは左寄せ */
+        margin-bottom: 15px;
+    }
+
+    /* 以前のレスポンシブスタイルは削除（iPhone向けがデフォルトになるため） */
+    /* @media (max-width: 768px) { ... } */
+    /* @media (max-width: 420px) { ... } */
+}
+/* 古いレスポンシブスタイルは削除 */
+/* @media (max-width: 768px) { ... } */
+/* @media (max-width: 420px) { ... } */
+/* .chartjs-datalabels-label ... */
+
+/* ドラム式ピッカーのスタイル */
+.duration-picker-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 5px;
+    margin-bottom: 20px;
+    height: 150px; /* ピッカー全体の高さ */
+    overflow: hidden; /* 上下の余分なアイテムを隠す */
+    position: relative;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+}
+
+.duration-picker-container::before, .duration-picker-container::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: calc(50% - 20px); /* 中央の選択領域以外の高さ */
+    background: linear-gradient(to bottom, var(--card-background) 0%, rgba(255,255,255,0) 50%, var(--card-background) 100%);
+    pointer-events: none; /* スクロールを妨げないように */
+    z-index: 1;
+}
+
+.duration-picker-container::before {
+    top: 0;
+    background: linear-gradient(to bottom, var(--card-background) 0%, rgba(255,255,255,0) 100%);
+}
+
+.duration-picker-container::after {
+    bottom: 0;
+    background: linear-gradient(to top, var(--card-background) 0%, rgba(255,255,255,0) 100%);
+}
+
+/* 中央の選択インジケータ (線) */
+.duration-picker-container .selection-indicator {
+    position: absolute;
+    top: 50%;
+    left: 10px;
+    right: 10px;
+    height: 40px; /* 選択アイテムの高さに合わせる */
+    transform: translateY(-50%);
+    border-top: 2px solid var(--primary-color);
+    border-bottom: 2px solid var(--primary-color);
+    pointer-events: none;
+    z-index: 0; /* フェード効果の下 */
+}
+
+.wheel-wrapper {
+    height: 100%;
+    overflow-y: scroll;
+    -webkit-overflow-scrolling: touch; /* iOSでの慣性スクロール */
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none;  /* IE 10+ */
+}
+
+.wheel-wrapper::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, Opera */
+}
+
+.wheel {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.wheel-item {
+    height: 40px; /* 各アイテムの高さ */
+    line-height: 40px;
+    font-size: 1.2em;
+    color: var(--text-color);
+    text-align: center;
+    width: 80px; /* ホイールの幅 */
+    opacity: 0.5; /* 非選択アイテムは薄く */
+    transition: opacity 0.2s, font-weight 0.2s;
+}
+
+.wheel-item.selected-item {
+    opacity: 1;
+    font-weight: bold;
+    color: var(--primary-color);
+}
+
+.picker-separator {
+    font-size: 1.5em;
+    font-weight: bold;
+    color: var(--primary-color);
+    margin: 0 10px;
+    line-height: 150px; /* ピッカー全体の高さに合わせる */
+}
+
+#selectedDurationText { /* ラベル内の時間表示用Span */
+    font-weight: bold;
+    color: var(--primary-color);
+    margin-left: 5px;
+} 
