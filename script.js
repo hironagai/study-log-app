@@ -149,7 +149,13 @@ document.addEventListener('DOMContentLoaded', async () => {
         const email = signUpEmailInput.value;
         const password = signUpPasswordInput.value;
         signUpError.textContent = '';
-        const { data, error } = await supabaseClient.auth.signUp({ email, password });
+        const { data, error } = await supabaseClient.auth.signUp({
+            email: email,
+            password: password,
+            options: {
+              emailRedirectTo: 'https://fbus.jp/study-log-app/',
+            }
+          });
         if (error) {
             signUpError.textContent = 'エラー: ' + error.message;
         } else {
