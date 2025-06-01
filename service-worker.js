@@ -1,4 +1,4 @@
-const CACHE_NAME = 'study-log-cache-v4';
+const CACHE_NAME = 'study-log-cache-v5';
 const urlsToCache = [
   '.',
   'index.html',
