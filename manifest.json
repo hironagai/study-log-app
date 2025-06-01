@@ -1,0 +1,21 @@
+{
+  "name": "勉強時間記録アプリ",
+  "short_name": "勉強記録",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#007bff",
+  "description": "日々の勉強時間を記録・管理するアプリです。",
+  "icons": [
+    {
+      "src": "favicon.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "favicon.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+} 
