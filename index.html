@@ -19,6 +19,7 @@
             <i class="fas fa-user-circle" id="userIcon"></i>
             <div class="dropdown-menu" id="userDropdownMenu">
                 <span id="userEmailDisplay"></span>
+                <button id="inviteFriendButton">お友だちを招待</button>
                 <button id="logoutButton">ログアウト</button>
             </div>
         </div>
@@ -132,5 +133,16 @@
     </script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="script.js" defer></script>
+
+    <!-- QRコード表示モーダル -->
+    <div id="qrModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button" id="closeQrModal">&times;</span>
+            <h2>お友だちを招待</h2>
+            <p>以下のQRコードを読み取ってもらうか、<br>このページのURLを共有してください。</p>
+            <img id="qrCodeImage" src="qr-code.png" alt="招待用QRコード">
+            <p><small>（このQRコードは現在のページのURLを示します）</small></p>
+        </div>
+    </div>
 </body>
 </html> 

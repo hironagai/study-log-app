@@ -729,7 +729,7 @@ header h1 {
 }
 
 #logoutButton:hover {
-    background-color: #c0392b;
+    background-color: var(--danger-hover-color);
 }
 
 
@@ -832,4 +832,111 @@ header h1 {
 /* メインアプリコンテナの調整 */
 #appContainer {
     padding-top: 70px; /* 固定ヘッダー分のパディング */
+}
+
+/* お友だちを招待ボタン */
+#inviteFriendButton {
+    display: block;
+    width: calc(100% - 20px); /* padding考慮 */
+    padding: 8px 10px; /* 上下パディングを8pxに変更 */
+    margin: 8px 10px; /* 上下マージンを8px、下マージンも揃える */
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    text-align: center;
+    font-size: 0.9em;
+    transition: background-color 0.3s ease;
+}
+
+#inviteFriendButton:hover {
+    background-color: #3a7bc8; /* 少し濃い青 */
+}
+
+
+/* モーダルウィンドウのスタイル */
+.modal {
+    display: none; /* 初期状態では非表示 */
+    position: fixed; /* 画面に固定 */
+    z-index: 1000; /* 最前面に表示 */
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto; /* スクロール可能に */
+    background-color: rgba(0,0,0,0.6); /* 背景を少し暗くする */
+    animation: fadeIn 0.3s ease-out;
+}
+
+.modal-content {
+    background-color: #fff;
+    margin: 15% auto;
+    padding: 25px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    width: 85%;
+    max-width: 400px; /* 最大幅を設定 */
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    text-align: center;
+    position: relative;
+    animation: slideIn 0.3s ease-out;
+}
+
+.close-button {
+    color: #aaa;
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    font-size: 28px;
+    font-weight: bold;
+    transition: color 0.2s ease;
+}
+
+.close-button:hover,
+.close-button:focus {
+    color: #333;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.modal-content h2 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    color: var(--primary-color);
+    font-size: 1.4em;
+}
+
+.modal-content p {
+    font-size: 0.95em;
+    color: var(--text-color);
+    line-height: 1.6;
+    margin-bottom: 15px;
+}
+
+.modal-content img#qrCodeImage {
+    max-width: 80%;
+    height: auto;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    border: 1px solid var(--border-color);
+    padding: 5px;
+    background-color: white;
+}
+
+.modal-content p small {
+    font-size: 0.8em;
+    color: var(--light-text-color);
+}
+
+/* フェードインアニメーション */
+@keyframes fadeIn {
+    from {opacity: 0;}
+    to {opacity: 1;}
+}
+
+/* スライドインアニメーション (モーダルコンテンツ用) */
+@keyframes slideIn {
+    from {transform: translateY(-30px); opacity: 0;}
+    to {transform: translateY(0); opacity: 1;}
 } 

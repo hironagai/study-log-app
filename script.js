@@ -23,6 +23,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     const userEmailDisplay = document.getElementById('userEmailDisplay');
     const logoutButton = document.getElementById('logoutButton');
 
+    const inviteFriendButton = document.getElementById('inviteFriendButton');
+    const qrModal = document.getElementById('qrModal');
+    const closeQrModal = document.getElementById('closeQrModal');
+
+
     const showSignInButton = document.getElementById('showSignInButton');
     const showSignUpButton = document.getElementById('showSignUpButton');
     const signInForm = document.getElementById('signInForm');
@@ -34,13 +39,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     const signUpPasswordInput = document.getElementById('signUpPassword');
     const signUpError = document.getElementById('signUpError');
 
-    // const subjectInput = document.getElementById('subject'); // inputからselectに変更したので不要
-    // const subjectSelect = document.getElementById('subjectSelect'); // select要素を取得 → アイコン選択に変更
     const subjectIconContainer = document.getElementById('subjectIconContainer'); // アイコンコンテナ
     const selectedSubjectInput = document.getElementById('selectedSubject'); // 選択された科目を保持するhidden input
-    // const durationInput = document.getElementById('duration'); // selectに変更したので不要
-    // const durationSlider = document.getElementById('durationSlider'); // スライダー要素を取得 -> ピッカーに変更
-    // const selectedDurationDisplay = document.getElementById('selectedDurationDisplay'); // スライダーの値表示用span -> ピッカー用に変更
     const hoursWheel = document.getElementById('hoursWheel');
     const minutesWheel = document.getElementById('minutesWheel');
     const selectedDurationText = document.getElementById('selectedDurationText');
@@ -48,7 +48,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     const logList = document.getElementById('logList');
     const pieChartCanvas = document.getElementById('studyChart'); // 円グラフ用canvas
     const stackedBarChartCanvas = document.getElementById('stackedBarChart'); // 積み上げ棒グラフ用canvas
-    // const chartTypeRadios = document.querySelectorAll('input[name="chartType"]'); // 削除
     let studyPieChart = null; // 円グラフオブジェクト
     let studyStackedBarChart = null; // 積み上げ棒グラフオブジェクト
 
@@ -180,7 +179,31 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (error) {
             alert('ログアウトエラー: ' + error.message);
         }
+        // ログアウト後にドロップダウンメニューも閉じる
+        userDropdownMenu.classList.remove('show');
     });
+
+    if (inviteFriendButton && qrModal) {
+        inviteFriendButton.addEventListener('click', () => {
+            qrModal.style.display = 'block';
+            userDropdownMenu.classList.remove('show'); // モーダル表示時にドロップダウンを閉じる
+        });
+    }
+
+    if (closeQrModal && qrModal) {
+        closeQrModal.addEventListener('click', () => {
+            qrModal.style.display = 'none';
+        });
+    }
+
+    // モーダル背景クリックで閉じる
+    if (qrModal) {
+        window.addEventListener('click', (event) => {
+            if (event.target === qrModal) {
+                qrModal.style.display = 'none';
+            }
+        });
+    }
 
     // ユーザードロップダウン表示切り替え
     userIcon.addEventListener('click', (e) => {
@@ -248,7 +271,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const pickerHeight = 150; // CSSで設定した .duration-picker-container の高さ
 
         let selectedHour = 0;    // 初期値0時間
-        let selectedMinute = 15; // 初期値15分
+        let selectedMinute = 0; // 初期値0分
         let isSnappingHours = false; // 時間ホイールのスナップ処理中フラグ
         let isSnappingMinutes = false; // 分ホイールのスナップ処理中フラグ
 
@@ -325,7 +348,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             });
 
             if (closestItemIndex === -1) {
-                // 通常ここには来ないはずだが、念のため最初のアイテムを選択するなどのフォールバック
                 closestItemIndex = 0; 
                 if (items.length === 0) { // itemsが空なら何もしない (上でチェック済みだが二重チェック)
                      setIsSnapping(false);
