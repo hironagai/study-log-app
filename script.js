@@ -846,4 +846,39 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.querySelector('.tab-button[data-tab="inputTab"]').classList.add('active');
     tabPanels.forEach(panel => panel.classList.remove('active'));
     document.getElementById('inputTab').classList.add('active');
+
+    let newWorker;
+    window.addEventListener('load', () => {
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/service-worker.js')
+                .then(registration => {
+                    console.log('ServiceWorker registration successful with scope: ', registration.scope);
+
+                    registration.onupdatefound = () => {
+                        newWorker = registration.installing;
+                        if (newWorker == null) {
+                            return;
+                        }
+                        newWorker.onstatechange = () => {
+                            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                // 新しいService Workerがインストールされたが、まだ待機中
+                                // ここでユーザーに通知UIを表示するなどの処理を行う
+                                if (confirm('新しいバージョンがあります。アプリを更新しますか？')) {
+                                    newWorker.postMessage({ action: 'skipWaiting' });
+                                }
+                            }
+                        };
+                    };
+                })
+                .catch(error => {
+                    console.log('ServiceWorker registration failed: ', error);
+                });
+
+            navigator.serviceWorker.oncontrollerchange = () => {
+                // Service Workerが更新されたらページをリロードして新しいコンテンツを読み込む
+                console.log('Controller changed, reloading page.');
+                window.location.reload();
+            };
+        }
+    });
 }); 

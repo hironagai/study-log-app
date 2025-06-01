@@ -1,4 +1,4 @@
-const CACHE_NAME = 'study-log-cache-v3';
+const CACHE_NAME = 'study-log-cache-v4';
 const urlsToCache = [
   '.',
   'index.html',
@@ -19,6 +19,12 @@ self.addEventListener('install', event => {
       })
   );
   self.skipWaiting();
+});
+
+self.addEventListener('message', (event) => {
+  if (event.data && event.data.action === 'skipWaiting') {
+    self.skipWaiting();
+  }
 });
 
 self.addEventListener('fetch', event => {
