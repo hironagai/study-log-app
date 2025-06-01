@@ -13,61 +13,110 @@
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
 </head>
 <body>
-    <div class="container">
+    <header>
         <h1>勉強時間記録</h1>
+        <div id="userAuthIconContainer" style="display: none;">
+            <i class="fas fa-user-circle" id="userIcon"></i>
+            <div class="dropdown-menu" id="userDropdownMenu">
+                <span id="userEmailDisplay"></span>
+                <button id="logoutButton">ログアウト</button>
+            </div>
+        </div>
+    </header>
 
-        <ul class="tabs">
-            <li class="tab-button active" data-tab="inputTab"><i class="fas fa-pencil-alt"></i> 入力</li>
-            <li class="tab-button" data-tab="chartTab"><i class="fas fa-chart-bar"></i> グラフ</li>
-            <li class="tab-button" data-tab="logTab"><i class="fas fa-list-ul"></i> 記録一覧</li>
-        </ul>
+    <div id="authContainer">
+        <div class="auth-form-container">
+            <div id="authSelector">
+                <button id="showSignInButton" class="auth-toggle-button active">ログイン</button>
+                <button id="showSignUpButton" class="auth-toggle-button">はじめての利用</button>
+            </div>
 
-        <div id="inputTab" class="tab-panel active">
-            <h2>記録を入力</h2>
-            <div class="input-area">
-                <label for="subjectSelect">科目:</label>
-                <div id="subjectIconContainer" class="subject-icons">
-                    <!-- アイコンがここに動的に追加されます -->
+            <form id="signInForm">
+                <h2>ログイン</h2>
+                <div class="form-group">
+                    <label for="signInEmail">メールアドレス:</label>
+                    <input type="email" id="signInEmail" required>
                 </div>
-                <input type="hidden" id="selectedSubject" name="selectedSubject">
-                <label for="durationPicker">勉強時間: <span id="selectedDurationText">0時間30分</span></label>
-                <div id="durationPickerContainer" class="duration-picker-container">
-                    <div class="wheel-wrapper">
-                        <div class="wheel hours-wheel" id="hoursWheel">
-                            <!-- 時間のアイテムがここに動的に追加されます -->
-                        </div>
-                    </div>
-                    <span class="picker-separator">:</span>
-                    <div class="wheel-wrapper">
-                        <div class="wheel minutes-wheel" id="minutesWheel">
-                            <!-- 分のアイテムがここに動的に追加されます -->
-                        </div>
-                    </div>
+                <div class="form-group">
+                    <label for="signInPassword">パスワード:</label>
+                    <input type="password" id="signInPassword" required>
                 </div>
-                <button id="logButton">記録</button>
-            </div>
-        </div>
+                <button type="submit">ログイン</button>
+                <p id="signInError" class="error-message"></p>
+            </form>
 
-        <div id="chartTab" class="tab-panel">
-            <h3>日別・科目別勉強時間</h3>
-            <div class="chart-container stacked-bar-chart-container" style="width: 100%; height: 300px; margin-bottom: 40px;">
-                <canvas id="stackedBarChart"></canvas>
-            </div>
-            <h3>科目別 勉強時間割合</h3>
-            <div class="chart-container pie-chart-container" style="width: 100%; max-width:400px; height: 400px; margin: 20px auto;">
-                <canvas id="studyChart"></canvas>
-            </div>
+            <form id="signUpForm" style="display: none;">
+                <h2>ユーザー登録</h2>
+                <div class="form-group">
+                    <label for="signUpEmail">メールアドレス:</label>
+                    <input type="email" id="signUpEmail" required>
+                </div>
+                <div class="form-group">
+                    <label for="signUpPassword">パスワード:</label>
+                    <input type="password" id="signUpPassword" required>
+                </div>
+                <button type="submit">登録</button>
+                <p id="signUpError" class="error-message"></p>
+            </form>
         </div>
-
-        <div id="logTab" class="tab-panel">
-            <h2>記録一覧</h2>
-            <ul id="logList">
-                <!-- ここに記録カードが表示されます -->
-            </ul>
-        </div>
-
     </div>
+
+    <div id="appContainer" style="display: none;">
+        <div class="container">
+            <ul class="tabs">
+                <li class="tab-button active" data-tab="inputTab"><i class="fas fa-pencil-alt"></i> 入力</li>
+                <li class="tab-button" data-tab="chartTab"><i class="fas fa-chart-bar"></i> グラフ</li>
+                <li class="tab-button" data-tab="logTab"><i class="fas fa-list-ul"></i> 記録一覧</li>
+            </ul>
+
+            <div id="inputTab" class="tab-panel active">
+                <h2>記録を入力</h2>
+                <div class="input-area">
+                    <label for="subjectSelect">科目:</label>
+                    <div id="subjectIconContainer" class="subject-icons">
+                        <!-- アイコンがここに動的に追加されます -->
+                    </div>
+                    <input type="hidden" id="selectedSubject" name="selectedSubject">
+                    <label for="durationPicker">勉強時間: <span id="selectedDurationText">0時間30分</span></label>
+                    <div id="durationPickerContainer" class="duration-picker-container">
+                        <div class="wheel-wrapper">
+                            <div class="wheel hours-wheel" id="hoursWheel">
+                                <!-- 時間のアイテムがここに動的に追加されます -->
+                            </div>
+                        </div>
+                        <span class="picker-separator">:</span>
+                        <div class="wheel-wrapper">
+                            <div class="wheel minutes-wheel" id="minutesWheel">
+                                <!-- 分のアイテムがここに動的に追加されます -->
+                            </div>
+                        </div>
+                    </div>
+                    <button id="logButton">記録</button>
+                </div>
+            </div>
+
+            <div id="chartTab" class="tab-panel">
+                <h3>日別・科目別勉強時間</h3>
+                <div class="chart-container stacked-bar-chart-container" style="width: 100%; height: 300px; margin-bottom: 40px;">
+                    <canvas id="stackedBarChart"></canvas>
+                </div>
+                <h3>科目別 勉強時間割合</h3>
+                <div class="chart-container pie-chart-container" style="width: 100%; max-width:400px; height: 400px; margin: 20px auto;">
+                    <canvas id="studyChart"></canvas>
+                </div>
+            </div>
+
+            <div id="logTab" class="tab-panel">
+                <h2>記録一覧</h2>
+                <ul id="logList">
+                    <!-- ここに記録カードが表示されます -->
+                </ul>
+            </div>
+        </div>
+    </div>
+
     <script>
+    /* // Service Workerの登録を一時的にコメントアウト
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
           navigator.serviceWorker.register('/service-worker.js') // GitHub Pagesのルートからのパス
@@ -79,7 +128,9 @@
             });
         });
       }
+    */
     </script>
-    <script src="script.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="script.js" defer></script>
 </body>
 </html> 

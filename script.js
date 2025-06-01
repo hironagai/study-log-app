@@ -1,4 +1,39 @@
-document.addEventListener('DOMContentLoaded', () => {
+const SUPABASE_URL = 'https://ghsjhzdshkevnjoytxxs.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imdoc2poemRzaGtldm5qb3l0eHhzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDg3NTY0NzQsImV4cCI6MjA2NDMzMjQ3NH0.fqH5r49rfQMDpqF6vSyuotVqCPiY3TLCz38GyMToLAo';
+
+let supabaseClient; // グローバルスコープで宣言のみ行う
+
+document.addEventListener('DOMContentLoaded', async () => {
+    
+    // supabaseClient の初期化をここで行う
+    supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+        auth: {
+            persistSession: true, // セッションを永続化する (デフォルトtrue)
+            autoRefreshToken: true, // 自動的にトークンをリフレッシュする (デフォルトtrue)
+            detectSessionInUrl: true // URL内のセッション情報を検出する (デフォルトtrue)
+        }
+    });
+
+    // DOM要素の取得 (認証関連)
+    const authContainer = document.getElementById('authContainer');
+    const appContainer = document.getElementById('appContainer');
+    const userAuthIconContainer = document.getElementById('userAuthIconContainer');
+    const userIcon = document.getElementById('userIcon');
+    const userDropdownMenu = document.getElementById('userDropdownMenu');
+    const userEmailDisplay = document.getElementById('userEmailDisplay');
+    const logoutButton = document.getElementById('logoutButton');
+
+    const showSignInButton = document.getElementById('showSignInButton');
+    const showSignUpButton = document.getElementById('showSignUpButton');
+    const signInForm = document.getElementById('signInForm');
+    const signUpForm = document.getElementById('signUpForm');
+    const signInEmailInput = document.getElementById('signInEmail');
+    const signInPasswordInput = document.getElementById('signInPassword');
+    const signInError = document.getElementById('signInError');
+    const signUpEmailInput = document.getElementById('signUpEmail');
+    const signUpPasswordInput = document.getElementById('signUpPassword');
+    const signUpError = document.getElementById('signUpError');
+
     // const subjectInput = document.getElementById('subject'); // inputからselectに変更したので不要
     // const subjectSelect = document.getElementById('subjectSelect'); // select要素を取得 → アイコン選択に変更
     const subjectIconContainer = document.getElementById('subjectIconContainer'); // アイコンコンテナ
@@ -19,6 +54,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const tabButtons = document.querySelectorAll('.tab-button');
     const tabPanels = document.querySelectorAll('.tab-panel');
+
+    // --- ここから再追加: 初期セッション確認ログ ---
+    // console.log('[getSession] Attempting to get initial session...');
+    const { data: { session: initialSession }, error: initialSessionError } = await supabaseClient.auth.getSession();
+    // console.log('[getSession] Initial session:', initialSession);
+    // console.log('[getSession] Initial session error:', initialSessionError);
+    // --- ここまで再追加 ---
+
+    // --- ここから変更: 初期表示を制御 --- 
+    // 認証状態が確定するまで、関連コンテナを非表示にする
+    if (authContainer) authContainer.style.display = 'none';
+    if (appContainer) appContainer.style.display = 'none'; // HTMLでデフォルトnoneだが念のため
+    if (userAuthIconContainer) userAuthIconContainer.style.display = 'none';
+    // --- ここまで変更 ---
 
     const defaultSubjects = [
         { name: "国語", icon: "fas fa-book" },
@@ -99,6 +148,102 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     const sampleLogs = generateSampleLogs();
+
+    // 認証状態変更の監視
+    supabaseClient.auth.onAuthStateChange((event, session) => {
+        // console.log('Auth state changed. Event:', event, 'Session:', session);
+        if (session && session.user) {
+            // ログイン状態
+            authContainer.style.display = 'none';
+            appContainer.style.display = 'block';
+            userAuthIconContainer.style.display = 'block';
+            userEmailDisplay.textContent = session.user.email;
+            loadLogsAndRenderList();
+            if (document.getElementById('chartTab').classList.contains('active')) {
+                updateChart();
+            }
+        } else {
+            // 未ログイン状態
+            authContainer.style.display = 'flex';
+            appContainer.style.display = 'none';
+            userAuthIconContainer.style.display = 'none';
+            userDropdownMenu.classList.remove('show');
+            logList.innerHTML = '';
+            if (studyPieChart) studyPieChart.destroy();
+            if (studyStackedBarChart) studyStackedBarChart.destroy();
+        }
+    });
+
+    // ログイン/サインアップフォーム切り替え
+    showSignInButton.addEventListener('click', () => {
+        signInForm.style.display = 'block';
+        signUpForm.style.display = 'none';
+        showSignInButton.classList.add('active');
+        showSignUpButton.classList.remove('active');
+        signInError.textContent = '';
+        signUpError.textContent = '';
+    });
+
+    showSignUpButton.addEventListener('click', () => {
+        signInForm.style.display = 'none';
+        signUpForm.style.display = 'block';
+        showSignInButton.classList.remove('active');
+        showSignUpButton.classList.add('active');
+        signInError.textContent = '';
+        signUpError.textContent = '';
+    });
+
+    // サインアップ処理
+    signUpForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const email = signUpEmailInput.value;
+        const password = signUpPasswordInput.value;
+        signUpError.textContent = '';
+        const { data, error } = await supabaseClient.auth.signUp({ email, password });
+        if (error) {
+            signUpError.textContent = 'エラー: ' + error.message;
+        } else {
+            // alert('ユーザー登録が完了しました。ログインしてください。');
+            alert('認証メール(件名:Confirm your signup)を送信しました。メール内のリンクをクリックしてください。メールが見つからない場合は、迷惑フォルダを確認してください。');
+            showSignInButton.click();
+            signInEmailInput.value = email;
+        }
+    });
+
+    // ログイン処理
+    signInForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const email = signInEmailInput.value;
+        const password = signInPasswordInput.value;
+        signInError.textContent = '';
+
+        const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+
+        if (error) {
+            signInError.textContent = 'エラー: ' + error.message;
+        }
+    });
+
+    // ログアウト処理
+    logoutButton.addEventListener('click', async () => {
+        const { error } = await supabaseClient.auth.signOut();
+        if (error) {
+            alert('ログアウトエラー: ' + error.message);
+        }
+    });
+
+    // ユーザードロップダウン表示切り替え
+    userIcon.addEventListener('click', (e) => {
+        e.stopPropagation(); // 親要素へのイベント伝播を停止
+        userDropdownMenu.classList.toggle('show');
+    });
+
+    // ドキュメント全体でのクリックを監視し、ドロップダウン以外がクリックされたら閉じる
+    document.addEventListener('click', (e) => {
+        if (!userAuthIconContainer.contains(e.target) && userDropdownMenu.classList.contains('show')) {
+            userDropdownMenu.classList.remove('show');
+        }
+    });
 
     // 科目選択プルダウンの初期化 -> 科目アイコンの初期化に変更
     function initializeSubjectIcons() {
@@ -328,7 +473,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (typeof ChartDataLabels !== 'undefined') {
         Chart.register(ChartDataLabels);
     } else {
-        console.error('ChartDataLabels plugin error');
+        // console.error('ChartDataLabels plugin error');
     }
 
     // タブ切り替え機能
@@ -365,109 +510,114 @@ document.addEventListener('DOMContentLoaded', () => {
     // 初期表示で入力タブがアクティブなので、もしグラフを初めから描画したい場合はここでupdateChart()を呼ぶ
     // ただし、chartTabがアクティブでないと描画されないように updateChart 側で制御する
 
-    logButton.addEventListener('click', () => {
-        const subject = selectedSubjectInput.value; 
+    logButton.addEventListener('click', async () => {
+        const { data: { user } } = await supabaseClient.auth.getUser();
+        if (!user) {
+            alert('ログインしていません。記録を保存するにはログインしてください。');
+            return;
+        }
+
+        const subject = selectedSubjectInput.value;
         if (!subject) { alert('科目を選択してください。'); return; }
-        
-        // ピッカーから値を取得
+
         const selectedHourItem = hoursWheel.querySelector('.wheel-item.selected-item');
         const selectedMinuteItem = minutesWheel.querySelector('.wheel-item.selected-item');
-
         let hours = 0;
         let minutes = 0;
-
-        if (selectedHourItem) {
-            hours = parseInt(selectedHourItem.dataset.value, 10);
-        }
-        if (selectedMinuteItem) {
-            minutes = parseInt(selectedMinuteItem.dataset.value, 10);
-        }
-
+        if (selectedHourItem) hours = parseInt(selectedHourItem.dataset.value, 10);
+        if (selectedMinuteItem) minutes = parseInt(selectedMinuteItem.dataset.value, 10);
         const durationMinutes = hours * 60 + minutes;
 
-        if (isNaN(durationMinutes) || durationMinutes < 15) { // 最小15分とする（0分記録を防ぐ）
-             alert('15分以上の有効な勉強時間を選択してください。'); 
-             return; 
-        }
-        const now = new Date();
-        const log = { id: Date.now(), subject: subject, loggedAt: now.toISOString(), duration: durationMinutes * 60 };
-        saveLog(log);
-        addLogToList(log);
-        // 記録追加時に、もし円グラフタブが表示されていれば更新する
-        if (document.getElementById('chartTab').classList.contains('active')) {
-            updateChart();
+        if (isNaN(durationMinutes) || durationMinutes < 1) { // 1分以上
+             alert('1分以上の有効な勉強時間を選択してください。');
+             return;
         }
 
-        // 「記録一覧」タブに移動
-        const logTabButton = document.querySelector('.tab-button[data-tab="logTab"]');
-        if (logTabButton) {
-            logTabButton.click(); // プログラムからクリックイベントを発火
+        // Supabaseに保存
+        const logEntry = {
+            user_id: user.id,
+            subject: subject,
+            duration_minutes: durationMinutes,
+            // logged_at はDBのデフォルトで設定される
+        };
+
+        const { data, error } = await supabaseClient.from('study_logs').insert([logEntry]).select();
+
+        if (error) {
+            alert('記録の保存に失敗しました: ' + error.message);
+        } else if (data && data.length > 0) {
+            addLogToList(data[0]);
+            if (document.getElementById('chartTab').classList.contains('active')) {
+                updateChart();
+            }
+            const logTabButton = document.querySelector('.tab-button[data-tab="logTab"]');
+            if (logTabButton) logTabButton.click();
+        } else {
+            alert('記録は保存されましたが、表示の更新に問題が発生しました。');
         }
     });
 
-    function saveLog(log) {
-        const logs = getLogsFromStorage();
-        logs.push(log);
-        localStorage.setItem('studyLogs', JSON.stringify(logs));
-    }
-
-    function loadLogsAndRenderList() { // 関数名変更
+    async function loadLogsAndRenderList() {
         logList.innerHTML = '';
-        const logs = getLogsFromStorage();
-        logs.forEach(log => addLogToList(log));
-        // renderChart(logs); // 初期表示ではグラフ描画しない
+        const { data: { user } , error: userError } = await supabaseClient.auth.getUser();
+        if (userError || !user) {
+            return;
+        }
+        const { data: logs, error } = await supabaseClient
+            .from('study_logs')
+            .select('*')
+            .eq('user_id', user.id)
+            .order('logged_at', { ascending: false });
+
+        if (error) {
+            // alert('記録の読み込みに失敗しました: ' + error.message);
+        } else {
+            logs.forEach(log => addLogToList(log));
+        }
     }
 
-    function getLogsFromStorage() {
-        const logsJSON = localStorage.getItem('studyLogs');
-        return logsJSON ? JSON.parse(logsJSON) : [];
+    function getLogsFromStorage() { // この関数はSupabase移行後は不要になる
+        return []; // Supabaseを使うので空を返す
     }
 
-    function addLogToList(log) {
+    function addLogToList(log) { // DBからのデータ形式に合わせて調整
         const li = document.createElement('li');
         li.classList.add('log-card');
-        li.dataset.logId = log.id;
+        li.dataset.logId = log.id; // DBのidを使用
 
-        const loggedDateTime = new Date(log.loggedAt);
+        const loggedDateTime = new Date(log.logged_at); // カラム名を修正
         const month = loggedDateTime.getMonth() + 1;
         const day = loggedDateTime.getDate();
-        const dayOfWeekIndex = loggedDateTime.getDay(); // 曜日を数値で取得 (0:日曜, 1:月曜, ...)
+        const dayOfWeekIndex = loggedDateTime.getDay();
         const daysOfWeek = ["日", "月", "火", "水", "木", "金", "土"];
-        const dayOfWeek = daysOfWeek[dayOfWeekIndex]; // 数値を曜日の文字列に変換
-
+        const dayOfWeek = daysOfWeek[dayOfWeekIndex];
         const hours = loggedDateTime.getHours();
         const minutes = loggedDateTime.getMinutes();
         const formattedTime = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
-
-        const durationHours = Math.floor(log.duration / 3600);
-        const durationMinutes = Math.floor((log.duration % 3600) / 60);
-        let durationText = "";
-        if (durationHours > 0) { durationText += `${durationHours}時間`; }
-        if (durationMinutes > 0) { durationText += `${durationMinutes}分`; }
-        if (durationText === "") { durationText = "0分"; }
+        
+        // duration_minutes はそのまま分なので、表示用にフォーマット
+        let durationText = formatDuration(log.duration_minutes); // 既存のフォーマット関数を利用
 
         const subjectObject = defaultSubjects.find(s => s.name === log.subject);
         const subjectIndex = subjectObject ? defaultSubjects.indexOf(subjectObject) : -1;
         const cardSubjectBorderColor = subjectIndex !== -1 ? subjectColors[subjectIndex] : 'rgba(0,0,0,1)';
         const cardSubjectBackgroundColor = subjectIndex !== -1 ? subjectBackgroundColors[subjectIndex] : 'rgba(169, 169, 169, 0.7)';
-        const cardSubjectTextColor = 'black';
-
-        // カードの内部構造を作成
+        
         li.innerHTML = `
             <div class="log-card-header">
                 <span class="log-date">${month}/${day}(${dayOfWeek})</span>
                 <span class="log-time">${formattedTime}</span>
             </div>
             <div class="log-card-body">
-                <span class="log-subject" style="border-color: ${cardSubjectBorderColor}; background-color: ${cardSubjectBackgroundColor}; color: ${cardSubjectTextColor};">${log.subject}</span>
+                <span class="log-subject" style="border-color: ${cardSubjectBorderColor}; background-color: ${cardSubjectBackgroundColor}; color: black;">${log.subject}</span>
                 <span class="log-duration">${durationText}</span>
             </div>
             <button class="delete-log-button">×</button>
         `;
 
         const deleteButton = li.querySelector('.delete-log-button');
-        deleteButton.onclick = function () {
-            deleteLog(log.id);
+        deleteButton.onclick = async function () { // async追加
+            await deleteLogFromSupabase(log.id); // Supabaseからの削除に変更
         };
 
         if (logList.firstChild) {
@@ -477,32 +627,42 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    function deleteLog(logId) {
-        let logs = getLogsFromStorage();
-        logs = logs.filter(log => log.id !== logId);
-        localStorage.setItem('studyLogs', JSON.stringify(logs));
-        loadLogsAndRenderList(); // リストのみ再描画
-        // 削除時に、もし円グラフタブが表示されていれば更新する
-        if (document.getElementById('chartTab').classList.contains('active')) {
-            updateChart();
+    async function deleteLogFromSupabase(logId) { // 関数名を変更し、asyncに
+        const { error } = await supabaseClient
+            .from('study_logs')
+            .delete()
+            .match({ id: logId });
+
+        if (error) {
+            alert('記録の削除に失敗しました: ' + error.message);
+        } else {
+            await loadLogsAndRenderList();
+            if (document.getElementById('chartTab').classList.contains('active')) {
+                updateChart();
+            }
         }
     }
+    
+    // 既存の deleteLog 関数は deleteLogFromSupabase に置き換わるのでコメントアウトまたは削除
+    /*
+    function deleteLog(logId) {
+        // localStorageからの削除ロジック
+    }
+    */
 
     function aggregatePieChartData(logs) {
         const aggregatedData = {};
         logs.forEach(log => {
-            const durationMinutes = log.duration / 60;
             if (aggregatedData[log.subject]) {
-                aggregatedData[log.subject] += durationMinutes;
+                aggregatedData[log.subject] += log.duration_minutes;
             } else {
-                aggregatedData[log.subject] = durationMinutes;
+                aggregatedData[log.subject] = log.duration_minutes;
             }
         });
         return aggregatedData;
     }
 
     function aggregateStackedBarData(logs) {
-        // 1. 直近1週間の日付配列を生成 (YYYY-MM-DD形式)
         const last7Days = [];
         for (let i = 6; i >= 0; i--) {
             const date = new Date();
@@ -510,30 +670,26 @@ document.addEventListener('DOMContentLoaded', () => {
             last7Days.push(date.toISOString().split('T')[0]);
         }
 
-        // 2. ログデータを日付ごとに集計 (既存のロジックを活用)
-        const dailyData = {}; // { 'YYYY-MM-DD': { '科目A': totalMinutes, '科目B': totalMinutes } }
+        const dailyData = {};
         logs.forEach(log => {
-            const dateStr = new Date(log.loggedAt).toISOString().split('T')[0];
-            // 過去7日間より古いデータは集計対象外とする (任意だが、表示範囲と合わせるため)
+            const dateStr = new Date(log.logged_at).toISOString().split('T')[0];
             if (!last7Days.includes(dateStr)) {
                 return; 
             }
-            const durationMinutes = log.duration / 60;
             if (!dailyData[dateStr]) dailyData[dateStr] = {};
             if (!dailyData[dateStr][log.subject]) dailyData[dateStr][log.subject] = 0;
-            dailyData[dateStr][log.subject] += durationMinutes;
+            dailyData[dateStr][log.subject] += log.duration_minutes;
         });
 
-        // 3. 科目ごとのデータセットを作成 (X軸はlast7Daysを基準にする)
-        const datasets = defaultSubjects.map((subjectObj, index) => { // subject -> subjectObj
+        const datasets = defaultSubjects.map((subjectObj, index) => {
             return {
-                label: subjectObj.name, // subject.name を使用
+                label: subjectObj.name,
                 data: last7Days.map(date => (dailyData[date] && dailyData[date][subjectObj.name]) || 0),
                 backgroundColor: subjectBackgroundColors[index],
                 borderColor: subjectColors[index],
                 borderWidth: 1
             };
-        }).filter(dataset => dataset.data.some(d => d > 0)); // 1週間を通じてデータが全て0の科目は除外
+        }).filter(dataset => dataset.data.some(d => d > 0));
         
         return { labels: last7Days, datasets: datasets };
     }
@@ -555,7 +711,7 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        const currentSubjectIndices = subjects.map(s => defaultSubjects.findIndex(ds => ds.name === s)); // 変更: defaultSubjectsがオブジェクトの配列になったため
+        const currentSubjectIndices = subjects.map(s => defaultSubjects.findIndex(ds => ds.name === s));
         const currentGraphBorderColors = currentSubjectIndices.map(index => index !== -1 ? subjectColors[index] : 'rgba(169, 169, 169, 1)');
         const currentGraphBackgroundColors = currentSubjectIndices.map(index => index !== -1 ? subjectBackgroundColors[index] : 'rgba(169, 169, 169, 0.7)');
 
@@ -564,8 +720,8 @@ document.addEventListener('DOMContentLoaded', () => {
             datasets: [{
                 label: '勉強時間 (分)',
                 data: durations,
-                backgroundColor: currentGraphBackgroundColors, // 動的に割り当てた背景色
-                borderColor: currentGraphBorderColors,       // 動的に割り当てた枠線色
+                backgroundColor: currentGraphBackgroundColors,
+                borderColor: currentGraphBorderColors,
                 borderWidth: 1
             }]
         };
@@ -694,11 +850,34 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    function updateChart() {
+    async function updateChart() { // async に変更
         if (document.getElementById('chartTab').classList.contains('active')) {
-            const logs = getLogsFromStorage();
-            renderStackedBarChart(logs);
-            renderPieChart(logs);
+            const { data: { user }, error: userError } = await supabaseClient.auth.getUser();
+            if (userError || !user) {
+                 if (studyPieChart) studyPieChart.destroy();
+                 if (studyStackedBarChart) studyStackedBarChart.destroy();
+                return;
+            }
+
+            const { data: logs, error } = await supabaseClient
+                .from('study_logs')
+                .select('*')
+                .eq('user_id', user.id)
+                .order('logged_at', { ascending: false });
+
+            if (error) {
+                 if (studyPieChart) studyPieChart.destroy();
+                 if (studyStackedBarChart) studyStackedBarChart.destroy();
+            } else {
+                renderStackedBarChart(logs);
+                renderPieChart(logs);
+            }
         }
     }
+
+    // 初期表示時にタブの状態をリセットする (入力タブをデフォルトアクティブに)
+    tabButtons.forEach(btn => btn.classList.remove('active'));
+    document.querySelector('.tab-button[data-tab="inputTab"]').classList.add('active');
+    tabPanels.forEach(panel => panel.classList.remove('active'));
+    document.getElementById('inputTab').classList.add('active');
 }); 

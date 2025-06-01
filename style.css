@@ -35,6 +35,7 @@ body {
     box-sizing: border-box;
     border-radius: 0; /* iPhoneでは角丸不要 */
     box-shadow: none; /* iPhoneでは影不要 */
+    margin-top: 0; /* #appContainer にパディングを設定したので不要に */
 }
 
 h1 {
@@ -642,4 +643,193 @@ h3 { /* グラフのタイトル */
     font-weight: bold;
     color: var(--primary-color);
     margin-left: 5px;
+}
+
+/* ヘッダースタイル */
+header {
+    background-color: #4a69bd;
+    color: white;
+    padding: 10px 15px; /* 上下10px, 左右15pxのパディングに変更 */
+    text-align: center;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 1000;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    box-sizing: border-box; /* box-sizingを明確に指定 */
+}
+
+header h1 {
+    color: #FFFFFF;
+    text-align: center;
+    margin: 0;
+    /* padding: 0; */ /* パディングを削除 */
+    font-size: 1.4em;
+    font-weight: 500;
+    flex-grow: 1;
+    margin-left: 30px; /* アイコンとのバランスをとるための左マージン (調整可能) */
+}
+
+#userAuthIconContainer {
+    display: flex;
+    align-items: center;
+    margin-left: auto; /* これは維持しつつ、右寄せの基本とする */
+    flex-shrink: 0; /* コンテナが縮まないようにする */
+    /* padding-right: 0; */ /* ヘッダーのパディングで制御するため削除 */
+}
+
+#userIcon {
+    font-size: 24px;
+    color: #FFFFFF;
+    cursor: pointer;
+    display: block; /* アイコンの表示をブロック要素に */
+}
+
+.dropdown-menu {
+    display: none; /* 初期状態は非表示 */
+    position: absolute;
+    right: 0;
+    top: 100%; /* アイコンの真下に表示 */
+    background-color: white;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    z-index: 1010;
+    min-width: 180px;
+    padding: 10px;
+}
+
+.dropdown-menu.show {
+    display: block;
+}
+
+#userEmailDisplay {
+    display: block;
+    padding: 8px 10px;
+    font-size: 0.9em;
+    color: #333;
+    border-bottom: 1px solid #eee;
+    margin-bottom: 8px;
+}
+
+#logoutButton {
+    background-color: #e74c3c;
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+    display: block; /* ブロック要素にして幅いっぱいに */
+    width: 100%;
+    text-align: center;
+}
+
+#logoutButton:hover {
+    background-color: #c0392b;
+}
+
+
+/* 認証フォームスタイル */
+#authContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: calc(100vh - 70px); /* ヘッダーの高さを考慮 */
+    padding: 20px;
+    margin-top: 70px; /* ヘッダーの高さ分マージンを確保 */
+}
+
+.auth-form-container {
+    background-color: #fff;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 400px; /* スマホでの最大幅 */
+}
+
+#authSelector {
+    display: flex;
+    margin-bottom: 20px;
+    border-bottom: 1px solid #eee;
+}
+
+.auth-toggle-button {
+    flex-grow: 1;
+    padding: 10px;
+    border: none;
+    background-color: transparent;
+    cursor: pointer;
+    font-size: 1.1em;
+    color: #7f8c8d;
+    transition: color 0.3s, border-bottom 0.3s;
+}
+
+.auth-toggle-button.active {
+    color: #4a69bd;
+    border-bottom: 3px solid #4a69bd;
+    font-weight: 500;
+}
+
+.auth-form-container h2 {
+    text-align: center;
+    margin-bottom: 25px;
+    color: #333;
+    font-weight: 500;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    color: #555;
+    font-size: 0.95em;
+}
+
+.form-group input[type="email"],
+.form-group input[type="password"] {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-sizing: border-box;
+    font-size: 1em;
+}
+
+.auth-form-container button[type="submit"] {
+    width: 100%;
+    padding: 12px;
+    background-color: #4a69bd;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1.1em;
+    transition: background-color 0.3s;
+    margin-top: 10px; /* 少し上にマージン */
+}
+
+.auth-form-container button[type="submit"]:hover {
+    background-color: #3b5998;
+}
+
+.error-message {
+    color: #e74c3c;
+    font-size: 0.9em;
+    text-align: center;
+    margin-top: 15px;
+    min-height: 1.2em; /* エラーメッセージがないときも高さを確保 */
+}
+
+/* メインアプリコンテナの調整 */
+#appContainer {
+    padding-top: 70px; /* 固定ヘッダー分のパディング */
 } 
