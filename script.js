@@ -695,16 +695,17 @@ document.addEventListener('DOMContentLoaded', async () => {
                 tooltip: {
                     callbacks: {
                         label: function(context) {
-                            let label = context.dataset.label || '';
-                            if (label) {
-                                label += ': ';
-                            }
                             if (context.parsed !== null) {
-                                const total = context.dataset.data.reduce((acc, val) => acc + val, 0);
-                                const percentage = ((context.parsed / total) * 100).toFixed(1) + '%';
-                                label = `${context.label}: ${context.parsed} 分 (${percentage})`;
+                                const subjectLabel = context.label; // 科目名
+                                const durationMinutes = context.parsed; // この項目の勉強時間（分）
+                                const formattedDuration = formatDuration(durationMinutes); // 既存の関数でフォーマット
+
+                                const totalMinutesAllSubjects = context.dataset.data.reduce((acc, val) => acc + val, 0);
+                                const percentage = ((durationMinutes / totalMinutesAllSubjects) * 100).toFixed(1) + '%';
+                                // 表示を「科目名: X時間Y分 (Z%)」の形式にする
+                                return `${subjectLabel}: ${formattedDuration} (${percentage})`;
                             }
-                            return label;
+                            return ''; // データがない場合は空文字
                         }
                     }
                 },
@@ -790,10 +791,16 @@ document.addEventListener('DOMContentLoaded', async () => {
                     intersect: false,
                     callbacks: {
                         title: function(tooltipItems) {
-                            return tooltipItems[0].label;
+                            return tooltipItems[0].label; // 日付をタイトルとして表示
                         },
                         label: function(context) {
-                            return `${context.dataset.label}: ${context.raw} 分`;
+                            const subjectLabel = context.dataset.label; // 科目名
+                            const durationMinutes = context.raw; // このデータセットのこの日付の勉強時間（分）
+                            if (durationMinutes === null || typeof durationMinutes === 'undefined' || durationMinutes === 0) {
+                                return null; // 時間が0または無効な場合はツールチップに表示しない
+                            }
+                            const formattedDuration = formatDuration(durationMinutes);
+                            return `${subjectLabel}: ${formattedDuration}`;
                         }
                     }
                 },
